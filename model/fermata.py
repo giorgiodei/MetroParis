@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 
-@dataclass
+@dataclass (eq=False)
 class Fermata:
     id_fermata: int
     nome: str
     coordX: int
     coordY: int
-
 
     def __hash__(self):
         return self.id_fermata

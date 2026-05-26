@@ -1,18 +1,44 @@
 import flet as ft
 
-
 class Controller:
     def __init__(self, view, model):
         # the view, with the graphical elements of the UI
         self._view = view
         # the model, which implements the logic of the program and holds the data
         self._model = model
+        self._fermataPartenza= None
 
     def handleCreaGrafo(self,e):
-        pass
+        self._model.buildGraph()
+        self._view.lst_result.controls.clear()
+        self._view.lst_result.controls.append(ft.Text("Grafo correttamente creato."))
+        self._view.lst_result.controls.append(ft.Text(f"Il grafo è costituito da {self._model.getNumNodi()} nodi"))
+        self._view.lst_result.controls.append(ft.Text(f"Il grafo è costituito da {self._model.getNumArchi()} archi"))
+        self._view.update_page()
 
-    def handleCercaRaggiungibili(self,e):
-        pass
+    def handleCercaRaggiungibili(self, e):
+        if self._fermataPartenza is None:
+            self._view.lst_result.controls.clear()
+            self._view.lst_result.controls.append(
+                ft.Text("Attenzione, non è stata scelta una stazione di partenza!", color="red"))
+            self._view.update_page()
+            return
+
+        # CONTROLLO: Il grafo è stato creato?
+        if self._model.getNumNodi() == 0:
+            self._view.lst_result.controls.clear()
+            self._view.lst_result.controls.append(
+                ft.Text("Attenzione, devi prima creare il grafo cliccando su 'Crea Grafo'!", color="red"))
+            self._view.update_page()
+            return
+
+        # Se il grafo esiste, procedi con la BFS
+        nodes = self._model.getBFSNodesFromEdges(self._fermataPartenza)
+        self._view.lst_result.controls.clear()
+        self._view.lst_result.controls.append(ft.Text(f"Di seguito i nodi raggiungibili da {self._fermataPartenza}:"))
+        for node in nodes:
+            self._view.lst_result.controls.append(ft.Text(node))
+        self._view.update_page()
 
     def loadFermate(self, dd: ft.Dropdown()):
         fermate = self._model.fermate
